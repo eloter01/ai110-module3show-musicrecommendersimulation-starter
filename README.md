@@ -17,7 +17,7 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Honestly, apps like Spotify and YouTube feel like they read your mind, but they're really just tracking everything you do (what you play, what you skip, what you throw on a playlist) and comparing you to millions of other people to guess what you'll want next. They also look at the actual sound of a song (is it fast, chill, acoustic, hype?) so they can find stuff that *feels* like what you already love. My version keeps it simple: instead of tracking a bunch of behavior, you just point it at one song you like, and it finds the songs that sound the most like that one. No "people like you also listened to..." magic, just matching a song's vibe using its numbers.
+Honestly, apps like Spotify and YouTube feel like they read your mind, but they're really just tracking everything you do (what you play, what you skip, what you throw on a playlist) and comparing you to millions of other people to guess what you'll want next. They also look at the actual sound of a song (is it fast, chill, acoustic, hype?) so they can find stuff that *feels* like what you already love. My version keeps it simple: instead of tracking a bunch of behavior, you describe your taste as a set of target values (favorite genre, favorite mood, ideal energy, etc.), and it finds the songs that land closest to that taste. No "people like you also listened to..." magic, just matching a song's vibe to your preferences using its numbers.
 
 ### What each `Song` uses
 
@@ -37,14 +37,20 @@ Every song is described by these features from `data/songs.csv`:
 
 ### What the `UserProfile` stores
 
-- `liked_song_id`: the "seed" song the user likes
+A "taste profile" of target values, one per scored feature:
 
-The recommender pulls that song's feature vector and treats it as the target to match against.
+- `favorite_genre`: preferred genre (categorical)
+- `favorite_mood`: preferred mood (categorical)
+- `target_energy`, `target_valence`, `target_danceability`, `target_acousticness`: ideal 0 to 1 values
+- `target_tempo_bpm`: ideal tempo in BPM (normalized to 0 to 1 at scoring time)
+- `target_instrumentalness`, `target_speechiness`: ideal 0 to 1 values
+
+The recommender treats these targets as the "perfect song" and scores how close each real song lands.
 
 ### How the `Recommender` scores and chooses
 
-- **Score (one song):** compare each candidate to the seed feature by feature. For numeric features, reward closeness (`1 - |seed - candidate|`); for genre/mood, award points on an exact match. Then combine into one weighted 0 to 1 score.
-- **Choose (the list):** drop the seed song itself, sort all others by score, and return the top N.
+- **Score (one song):** compare each candidate to the profile's targets feature by feature. For numeric features, reward closeness (`1 - |target - candidate|`); for genre/mood, award points on an exact match. Then combine into one weighted 0 to 1 score.
+- **Choose (the list):** sort all songs by score and return the top N.
 
 ---
 
