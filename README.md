@@ -17,17 +17,34 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Honestly, apps like Spotify and YouTube feel like they read your mind, but they're really just tracking everything you do (what you play, what you skip, what you throw on a playlist) and comparing you to millions of other people to guess what you'll want next. They also look at the actual sound of a song (is it fast, chill, acoustic, hype?) so they can find stuff that *feels* like what you already love. My version keeps it simple: instead of tracking a bunch of behavior, you just point it at one song you like, and it finds the songs that sound the most like that one. No "people like you also listened to..." magic, just matching a song's vibe using its numbers.
 
-Some prompts to answer:
+### What each `Song` uses
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Every song is described by these features from `data/songs.csv`:
 
-You can include a simple diagram or bullet list if helpful.
+- `id`: unique identifier (used to look songs up, not to score)
+- `title`, `artist`: display info only
+- `genre`: e.g. lofi, pop, rock (categorical)
+- `mood`: e.g. chill, intense, happy (categorical)
+- `energy`: 0 to 1, how hyped/calm it is
+- `valence`: 0 to 1, how happy/moody it sounds
+- `danceability`: 0 to 1, how easy it is to move to
+- `acousticness`: 0 to 1, acoustic vs electronic
+- `tempo_bpm`: beats per minute (normalized to 0 to 1 before scoring)
+
+**Scored features:** genre, mood, energy, valence, danceability, acousticness, tempo. (`id`, `title`, `artist` are metadata, not scored.)
+
+### What the `UserProfile` stores
+
+- `liked_song_id`: the "seed" song the user likes
+
+The recommender pulls that song's feature vector and treats it as the target to match against.
+
+### How the `Recommender` scores and chooses
+
+- **Score (one song):** compare each candidate to the seed feature by feature. For numeric features, reward closeness (`1 - |seed - candidate|`); for genre/mood, award points on an exact match. Then combine into one weighted 0 to 1 score.
+- **Choose (the list):** drop the seed song itself, sort all others by score, and return the top N.
 
 ---
 
