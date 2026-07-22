@@ -32,8 +32,10 @@ Every song is described by these features from `data/songs.csv`:
 - `danceability`: 0 to 1, how easy it is to move to
 - `acousticness`: 0 to 1, acoustic vs electronic
 - `tempo_bpm`: beats per minute (normalized to 0 to 1 before scoring)
+- `instrumentalness`: 0 to 1, no vocals vs vocal-heavy
+- `speechiness`: 0 to 1, spoken/rapped words vs sung
 
-**Scored features:** genre, mood, energy, valence, danceability, acousticness, tempo. (`id`, `title`, `artist` are metadata, not scored.)
+**Scored features:** genre, mood, energy, valence, danceability, acousticness, tempo, instrumentalness, speechiness. (`id`, `title`, `artist` are metadata, not scored.)
 
 ### What the `UserProfile` stores
 
@@ -47,10 +49,39 @@ A "taste profile" of target values, one per scored feature:
 
 The recommender treats these targets as the "perfect song" and scores how close each real song lands.
 
-### How the `Recommender` scores and chooses
+### The Algorithm Recipe
 
-- **Score (one song):** compare each candidate to the profile's targets feature by feature. For numeric features, reward closeness (`1 - |target - candidate|`); for genre/mood, award points on an exact match. Then combine into one weighted 0 to 1 score.
-- **Choose (the list):** sort all songs by score and return the top N.
+Each song earns points against the profile, then the list is ranked.
+
+**Step 0 (prep):** normalize tempo to 0 to 1 with `(bpm - 60) / (160 - 60)`, applied to both the song and the profile target.
+
+**Step 1 (score one song):**
+
+```
+score(song) =
+    2.0  if genre == favorite_genre  else 0
+  + 1.0  if mood  == favorite_mood   else 0
+  + 1.0 * (1 - |target_energy           - energy|)
+  + 1.0 * (1 - |target_acousticness     - acousticness|)
+  + 0.8 * (1 - |target_instrumentalness - instrumentalness|)
+  + 0.6 * (1 - |target_valence          - valence|)
+  + 0.6 * (1 - |target_danceability     - danceability|)
+  + 0.5 * (1 - |target_tempo_norm       - tempo_norm|)
+  + 0.4 * (1 - |target_speechiness      - speechiness|)
+```
+
+- **Categorical (genre, mood):** exact match earns full points, otherwise 0. Genre is weighted 2x mood because genre is a harder taste boundary and mood cuts across genres.
+- **Numeric:** `points * (1 - |target - value|)`, rewarding closeness to the target, not high or low values.
+- Max possible is about 7.9 points; divide by 7.9 for a clean 0 to 1 display score (ordering is unchanged).
+
+**Step 2 (choose the list):** score every song, sort descending, return the top K (default 5), breaking ties on genre match.
+
+### Potential biases
+
+- **Genre over-prioritization:** at 2.0 points, a genre match can outweigh several strong audio matches, so a "lofi" profile may bury a jazz track that nails the user's mood, energy, and acousticness just because the label differs. Great near-miss songs get ignored.
+- **Exact-match blindness:** genre and mood are all-or-nothing. Sonically adjacent genres (ambient, jazz) score the same zero as the opposite end (metal), so the system can't reward "close but not identical" taste.
+- **Correlated-feature double counting:** energy, acousticness, instrumentalness, and tempo tend to move together, so the "calm vs hype" axis is effectively counted several times, quietly outweighing independent signals like valence.
+- **Popularity and catalog bias:** with only 18 songs and no play-count data, recommendations reflect whatever the small catalog happens to contain, not real-world listening.
 
 ---
 
