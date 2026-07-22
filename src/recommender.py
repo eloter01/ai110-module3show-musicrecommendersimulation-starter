@@ -80,6 +80,7 @@ TEMPO_MIN, TEMPO_MAX = 60, 160
 
 
 def _norm_tempo(bpm: float) -> float:
+    """Normalizes a tempo in BPM to a 0-1 scale for scoring."""
     return (bpm - TEMPO_MIN) / (TEMPO_MAX - TEMPO_MIN)
 
 
@@ -115,9 +116,12 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """
-    Functional implementation of the recommendation logic.
-    Required by src/main.py
+    Scores every song with score_song(), then returns the top k
+    as (song, score, explanation), highest score first.
     """
-    # TODO: Implement scoring and ranking logic
-    # Expected return format: (song_dict, score, explanation)
-    return []
+    ranked = sorted(
+        ((song, *score_song(user_prefs, song)) for song in songs),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    return [(song, score, "; ".join(reasons)) for song, score, reasons in ranked[:k]]
