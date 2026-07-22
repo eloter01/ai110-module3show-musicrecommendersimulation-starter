@@ -95,7 +95,7 @@ taste sits in the middle or jumps around, there is almost nothing that fits, and
 the results start to feel random. We saw this in two tests. Doubling the weight
 on energy shuffled the lower spots around just based on how loud a song was, and
 the "No-Match Neutral" test scored its whole top five within a fifth of a point
-of each other, so the order was basically a coin flip. In plain terms, the app
+of each other, so the order was basically a coin flip. The app
 quietly sorts people into "calm person" or "hype person" and treats those two
 groups well while leaving everyone in between with weak picks. (Worth noting: pop
 is not over-represented in our data. The 18 songs cover 15 different genres, so
@@ -117,7 +117,7 @@ How we checked whether the recommender behaved as expected.
 
 **What might surprise someone.** The most surprising result is that one song,
 "Gym Hero," keeps showing up at or near the top for very different listeners.
-Here is why in plain terms: the app cares a lot about two things, whether the
+The app cares a lot about two things, whether the
 genre matches and how loud/energetic the song is. "Gym Hero" is a pop song that
 is very high energy and very electronic, so it scores big on both. If someone
 just wants happy pop, "Gym Hero" still wins almost all the points for being pop
@@ -165,11 +165,22 @@ for.
 
 ## 9. Personal Reflection  
 
-This project showed me that a recommender is just math, not magic. It only knows
-what we tell it to score.
+**My biggest learning moment.** I realized a recommender is really just adding up
+points, not magic. Once I saw the scoring math, the whole thing stopped feeling
+mysterious. The hard part was not the code, it was picking fair weights.
 
-The biggest surprise was how one loud pop song kept winning for very different
-users. That happened just because energy counts for so much.
+**How AI tools helped, and when I checked them.** AI helped me move fast on the
+boring parts, like wiring up the profiles and formatting the output. But I had to
+double-check its facts. It suggested writing that pop was 60% of the data, and
+when I actually counted, that was wrong, so I learned to verify claims against the
+real file.
 
-It made me see that real apps like Spotify can have the same kind of hidden bias.
-Small choices about weights can quietly shape what everyone hears.
+**What surprised me.** It surprised me how a simple rule could still feel like a
+real recommendation. Just matching a genre and a few sliders was enough to give
+picks that seemed smart. It made me realize "smart" apps can be pretty basic
+underneath.
+
+**What I would try next.** I would add way more songs, since 18 is tiny and the
+middle of the range is almost empty. I would also fix the energy problem so it
+does not get counted four times, and let similar genres earn partial credit
+instead of zero.
