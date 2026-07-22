@@ -122,15 +122,67 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
+Output from `python -m src.main` using the default `pop / happy` profile:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+Loaded songs: 18
+
+Top 5 recommendations for pop / happy:
+
+#1  Sunrise City - Neon Echo
+    Score: 7.83
+    Reasons:
+      - genre match: pop (+2.0)
+      - mood match: happy (+1.0)
+      - energy close (+0.98)
+      - acousticness close (+0.97)
+      - instrumentalness close (+0.80)
+      - valence close (+0.59)
+      - danceability close (+0.59)
+      - tempo close (+0.49)
+      - speechiness close (+0.40)
+
+#2  Gym Hero - Max Pulse
+    Score: 6.49
+    Reasons:
+      - genre match: pop (+2.0)
+      - energy close (+0.87)
+      - acousticness close (+0.90)
+      - instrumentalness close (+0.78)
+      - valence close (+0.55)
+      - danceability close (+0.55)
+      - tempo close (+0.44)
+      - speechiness close (+0.39)
+
+#3  Rooftop Lights - Indigo Parade
+    Score: 5.59
+    Reasons:
+      - mood match: happy (+1.0)
+      - energy close (+0.96)
+      - acousticness close (+0.80)
+      - instrumentalness close (+0.79)
+      - valence close (+0.58)
+      - danceability close (+0.59)
+      - tempo close (+0.48)
+      - speechiness close (+0.40)
+
+#4  Block Party - Cardinal Flow
+    Score: 4.41
+    Reasons:
+      - energy close (+0.95)
+      - acousticness close (+0.93)
+      - instrumentalness close (+0.78)
+      - valence close (+0.52)
+      - danceability close (+0.54)
+      - tempo close (+0.40)
+
+#5  Island Time - Sunny Roots
+    Score: 4.27
+    Reasons:
+      - instrumentalness close (+0.76)
+      - valence close (+0.60)
+      - danceability close (+0.59)
+      - speechiness close (+0.39)
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->

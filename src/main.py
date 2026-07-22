@@ -16,28 +16,29 @@ def main() -> None:
     songs = load_songs("data/songs.csv")
     print(f"Loaded songs: {len(songs)}")
 
-    # Taste profile: lofi / chill-study cluster
+    # Taste profile: pop / happy cluster
     user_profile = {
-        "favorite_genre": "lofi",
-        "favorite_mood": "chill",
-        "target_energy": 0.40,
-        "target_valence": 0.58,
-        "target_danceability": 0.60,
-        "target_acousticness": 0.80,
-        "target_tempo_bpm": 78,
-        "target_instrumentalness": 0.85,
-        "target_speechiness": 0.04,
+        "favorite_genre": "pop",
+        "favorite_mood": "happy",
+        "target_energy": 0.80,
+        "target_valence": 0.85,
+        "target_danceability": 0.80,
+        "target_acousticness": 0.15,
+        "target_tempo_bpm": 120,
+        "target_instrumentalness": 0.05,
+        "target_speechiness": 0.06,
     }
 
     recommendations = recommend_songs(user_profile, songs, k=5)
 
-    print("\nTop recommendations:\n")
-    for rec in recommendations:
-        # You decide the structure of each returned item.
-        # A common pattern is: (song, score, explanation)
-        song, score, explanation = rec
-        print(f"{song['title']} - Score: {score:.2f}")
-        print(f"Because: {explanation}")
+    print(f"\nTop {len(recommendations)} recommendations "
+          f"for {user_profile['favorite_genre']} / {user_profile['favorite_mood']}:\n")
+    for rank, (song, score, explanation) in enumerate(recommendations, start=1):
+        print(f"#{rank}  {song['title']} - {song['artist']}")
+        print(f"    Score: {score:.2f}")
+        print("    Reasons:")
+        for reason in explanation.split("; "):
+            print(f"      - {reason}")
         print()
 
 
