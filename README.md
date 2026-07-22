@@ -389,9 +389,40 @@ stress-test the scoring logic. Output captured below.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+### Weight Shift: double energy, halve genre
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
+**Change:** `GENRE_POINTS 2.0 → 1.0` and the `energy` weight `1.0 → 2.0` in
+`recommender.py` — coefficient swaps only, so the scoring formula is unchanged.
+
+**Math check:** exactly 1.0 point moved from genre into energy, so the max
+possible score is unchanged (`2+1+4.9 = 7.9` before, `1+1+5.9 = 7.9` after) and
+the ~7.9 normalization divisor still holds. Spot-check on Gym Hero /
+High-Energy Pop: `1.0 genre + 1.0 mood + 1.96 energy + 1.00 acoustic +
+0.80 instr + 0.58 val + 0.59 dance + 0.49 tempo + 0.40 speech = 7.82`,
+matching the terminal.
+
+**Effect (before → after):**
+
+| Profile | #1 | What moved |
+|---|---|---|
+| High-Energy Pop | Gym Hero (unchanged) | #4/#5 swap: Neon Pulse (energy 0.95) climbs over Block Party |
+| Chill Lofi | Library Rain (unchanged) | Top 5 order identical |
+| Deep Intense Rock | Storm Runner (unchanged) | Order identical, scores compressed |
+| Sad but Hype | Iron Verdict (unchanged) | Sunrise City drops out; Neon Pulse enters (highest energy) |
+| No-Match Neutral | Backroad Sunset (unchanged) | Tail reshuffles: Backroad jumps to 4.99 (energy 0.50 = target exactly → full 2.0), Velvet Hours / Island Time enter, Night Drive Loop / Paper Boats fall out |
+
+**Verdict — different, not more accurate.** Every profile's #1 held: on the
+clean profiles the genre leader also had a strong energy match, so halving genre
+never dethroned it and doubling energy only reinforced the same winner. The
+change bit hardest exactly where genre points were unreachable (the two
+adversarial profiles), amplifying energy's pull and reshuffling the tail. The
+experiment mostly changes *how ties and near-misses break* rather than improving
+relevance — a sensitivity signal that the system is genre-anchored and only
+weakly steered by any single numeric feature. Weights were reverted to the
+documented `genre 2.0 / energy 1.0` after the run.
+
+Other ideas to try next:
+
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
 
