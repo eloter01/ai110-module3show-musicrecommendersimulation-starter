@@ -63,12 +63,23 @@ Prompts:
 
 Where the system struggles or behaves unfairly. 
 
-Prompts:  
-
-- Features it does not consider  
-- Genres or moods that are underrepresented  
-- Cases where the system overfits to one preference  
-- Ways the scoring might unintentionally favor some users  
+**Weakness found during experiments: a "calm vs. hype" filter bubble.** Four of
+the song features (energy, acousticness, instrumentalness, and tempo) really all
+describe the same thing, which is how calm or how hyped a song is. Because the
+score adds up all four, that one idea gets counted about four times and ends up
+steering the whole ranking, while things like happiness or danceability barely
+move the needle. The songs themselves make this worse: out of 18 songs, 8 are
+high energy and 7 are low, and only 3 sit somewhere in the middle. So if you
+like calm music or hyped music, the app has plenty to give you, but if your
+taste sits in the middle or jumps around, there is almost nothing that fits, and
+the results start to feel random. We saw this in two tests. Doubling the weight
+on energy shuffled the lower spots around just based on how loud a song was, and
+the "No-Match Neutral" test scored its whole top five within a fifth of a point
+of each other, so the order was basically a coin flip. In plain terms, the app
+quietly sorts people into "calm person" or "hype person" and treats those two
+groups well while leaving everyone in between with weak picks. (Worth noting: pop
+is not over-represented in our data. The 18 songs cover 15 different genres, so
+this problem comes from how we score, not from one genre taking over.)
 
 ---
 
