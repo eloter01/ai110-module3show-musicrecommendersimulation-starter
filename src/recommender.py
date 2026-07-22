@@ -1,6 +1,6 @@
 import csv
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 @dataclass
 class Song:
@@ -39,12 +39,24 @@ class Recommender:
         self.songs = songs
 
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
-        # TODO: Implement recommendation logic
-        return self.songs[:k]
+        prefs = _profile_to_prefs(user)
+        ranked = sorted(self.songs, key=lambda s: score_song(prefs, asdict(s))[0], reverse=True)
+        return ranked[:k]
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
-        # TODO: Implement explanation logic
-        return "Explanation placeholder"
+        prefs = _profile_to_prefs(user)
+        score, reasons = score_song(prefs, asdict(song))
+        return "; ".join(reasons) if reasons else f"no strong matches (score {score})"
+
+
+def _profile_to_prefs(user: UserProfile) -> Dict:
+    """Maps a UserProfile dataclass onto the dict keys score_song expects."""
+    return {
+        "favorite_genre": user.favorite_genre,
+        "favorite_mood": user.favorite_mood,
+        "target_energy": user.target_energy,
+        "target_acousticness": 1.0 if user.likes_acoustic else 0.0,
+    }
 
 def load_songs(csv_path: str) -> List[Dict]:
     """
@@ -102,10 +114,15 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
     for feature, weight in NUMERIC_WEIGHTS.items():
         if feature == "tempo":
+            if "target_tempo_bpm" not in user_prefs:
+                continue
             target = _norm_tempo(user_prefs["target_tempo_bpm"])
             value = _norm_tempo(song["tempo_bpm"])
         else:
-            target = user_prefs[f"target_{feature}"]
+            key = f"target_{feature}"
+            if key not in user_prefs or feature not in song:
+                continue
+            target = user_prefs[key]
             value = song[feature]
         points = weight * (1 - abs(target - value))
         score += points
